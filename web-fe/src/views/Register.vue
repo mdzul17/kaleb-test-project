@@ -32,8 +32,6 @@
       const name = ref('');
   
       const register = async () => {
-        // Here, you would call your backend to register the user.
-        // This is a dummy implementation.
         const response = await fetch('http://localhost:3000/api/v1/users/register', {
           method: 'POST',
           headers: {

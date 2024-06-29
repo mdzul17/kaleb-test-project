@@ -30,8 +30,6 @@
       const password = ref('');
   
       const login = async () => {
-        // Here, you would call your backend to verify the credentials.
-        // This is a dummy implementation.
         const response = await fetch('http://localhost:3000/api/v1/authentications/login', {
           method: 'POST',
           headers: {
