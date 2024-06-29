@@ -6,19 +6,26 @@ import { UserRepository } from "../repositories/UserRepository";
 const userRepository = new UserRepository();
 const userService = new UserService(userRepository);
 
-export class UserController {
+export class AuthenticationController {
     private userService: UserService;
 
     constructor(userService: UserService) {
       this.userService = userService;
     }
 
-    async register(req: Request, res: Response): Promise<void> {
+    async login(req: Request, res: Response): Promise<void> {
         try {
-            await userService.register(req.body);
-            res.status(201).json({
+            const { username, password } = req.body
+            const token = await userService.login(
+                username,
+                password
+            );
+            res.status(200).json({
                 status: "success",
-                message: "User registered successfully",
+                data: { 
+                    username: username,
+                    token
+                 },
             });
         } catch (error: any) {
             console.error(error)

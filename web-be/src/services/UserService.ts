@@ -1,15 +1,21 @@
-import { UserRepository } from '../repositories/UserRepository';
-import { User } from '../models/User';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import { UserRepository } from '../repositories/UserRepository';
+import { RegisterUser } from '../models/User';
+import { InvariantError } from '../errors/InvariantError';
+import { AuthenticationError } from '../errors/AuthenticationError';
 
 export class UserService {
-  private userRepository = new UserRepository();
+    private userRepository: UserRepository;
 
-  async register(user: User): Promise<void> {
+    constructor(userRepository: UserRepository) {
+      this.userRepository = userRepository;
+    }
+
+  async register(user: RegisterUser): Promise<void> {
     const existingUser = await this.userRepository.findByUsername(user.username);
     if (existingUser) {
-      throw new Error('Username already taken');
+      throw new InvariantError('Username already taken');
     }
     await this.userRepository.create(user);
   }
@@ -17,11 +23,11 @@ export class UserService {
   async login(username: string, password: string): Promise<string> {
     const user = await this.userRepository.findByUsername(username);
     if (!user) {
-      throw new Error('Invalid credentials');
+      throw new AuthenticationError('Username or password is wrong!');
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new Error('Invalid credentials');
+      throw new AuthenticationError('Username or password is wrong!');
     }
     const token = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET!, {
       expiresIn: '1h',
