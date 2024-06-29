@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { UserRepository } from '../repositories/UserRepository';
-import { RegisterUser } from '../models/User';
+import { LoginResponse, RegisterUser } from '../models/User';
 import { InvariantError } from '../errors/InvariantError';
 import { AuthenticationError } from '../errors/AuthenticationError';
 
@@ -20,7 +20,7 @@ export class UserService {
     await this.userRepository.create(user);
   }
 
-  async login(username: string, password: string): Promise<string> {
+  async login(username: string, password: string): Promise<LoginResponse> {
     const user = await this.userRepository.findByUsername(username);
     if (!user) {
       throw new AuthenticationError('Username or password is wrong!');
@@ -32,6 +32,12 @@ export class UserService {
     const token = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET!, {
       expiresIn: '1h',
     });
-    return token;
+
+    const data = {
+      name: user.name,
+      token: token
+    }
+
+    return data;
   }
 }

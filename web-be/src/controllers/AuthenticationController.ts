@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { UserService } from "../services/UserService";
 import { HttpError } from "../errors/HttpError";
 import { UserRepository } from "../repositories/UserRepository";
+import { LoginResponse } from "../models/User";
 
 const userRepository = new UserRepository();
 const userService = new UserService(userRepository);
@@ -16,7 +17,7 @@ export class AuthenticationController {
     async login(req: Request, res: Response): Promise<void> {
         try {
             const { username, password } = req.body
-            const token = await userService.login(
+            const data = await userService.login(
                 username,
                 password
             );
@@ -24,7 +25,8 @@ export class AuthenticationController {
                 status: "success",
                 data: { 
                     username: username,
-                    token
+                    name: data.name,
+                    token: data.token
                  },
             });
         } catch (error: any) {
